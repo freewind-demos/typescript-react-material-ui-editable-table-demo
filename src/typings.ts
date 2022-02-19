@@ -1,4 +1,5 @@
 import {ReactNode} from 'react';
+import {CSSProperties} from 'react';
 
 export type TableColumn = {
   title?: string,
@@ -6,6 +7,11 @@ export type TableColumn = {
   renderFootCell?: () => ReactNode,
   isHead?: boolean,
   width?: number,
-  align?: 'left' | 'right' | 'center'
+  cellStyles?: {
+    base?: CSSProperties,
+    head?: CSSProperties,
+    body?: CSSProperties,
+    foot?: CSSProperties,
+  }
 }
 

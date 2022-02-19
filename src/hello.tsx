@@ -5,11 +5,12 @@ import {useCallback} from 'react';
 import './hello.pcss';
 import {TableColumn} from './typings';
 import {EditableTable} from './EditableTable/EditableTable';
-import {NumberCell} from './EditableTable/NumberCell';
+import {NumberInputCell} from './EditableTable/NumberInputCell';
 
 import DeleteIcon from '@material-ui/icons/Delete';
 import {sum} from './utils';
 import {Button} from '@material-ui/core';
+import {useMemo} from 'react';
 
 type Row = {
   project: string,
@@ -51,64 +52,84 @@ export default function MyTable() {
                                       index,
                                       field
                                     }: { index: number, field: Extract<keyof Row, 'sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat'> }) => {
-    return <NumberCell value={rows[index][field]}
-                       updateValue={v => updateRow(index, {[field]: v})}/>
+    return <NumberInputCell value={rows[index][field]}
+                            updateValue={v => updateRow(index, {[field]: v})}/>
   }, [rows])
 
   function rowTotal(index: number) {
     const row = rows[index];
+    console.log("### row", {rows, index})
     return row.sun + row.mon + row.tue + row.wed + row.thu + row.fri + row.sat;
   }
 
-  const bodyColumns: TableColumn[] = [
-    {title: 'Project', renderCell: (index) => rows[index].project, isHead: true, width: 100},
+  const bodyColumns: TableColumn[] = useMemo(() => [
+    {
+      title: 'Project',
+      width: 200,
+      renderCell: (index) => rows[index].project, isHead: true,
+      cellStyles: {
+        base: {
+          minWidth: 150,
+          padding: '2px 4px'
+        }
+      }
+    },
     {
       title: 'Sun 02/13',
-      renderCell: (index) => <EditableCell index={index} field='sun'/>,
       width: 100,
-      renderFootCell: () => sum(rows.map(it => it.sun))
+      renderCell: (index) => <EditableCell index={index} field='sun'/>,
+      renderFootCell: () => sum(rows.map(it => it.sun)).toString(),
+      cellStyles: {body: {padding: 0}},
     },
     {
       title: 'Mon 02/14',
-      renderCell: (index) => <EditableCell index={index} field='mon'/>,
       width: 100,
-      renderFootCell: () => sum(rows.map(it => it.mon))
+      renderCell: (index) => <EditableCell index={index} field='mon'/>,
+      renderFootCell: () => sum(rows.map(it => it.mon)).toString(),
+      cellStyles: {body: {padding: 0}},
     },
     {
       title: 'Tue 02/15',
+      width: 100,
       renderCell: (index) => <EditableCell index={index} field='tue'/>,
-      width: 100,
-      renderFootCell: () => sum(rows.map(it => it.tue))
+      renderFootCell: () => sum(rows.map(it => it.tue)).toString(),
+      cellStyles: {body: {padding: 0}},
     },
     {
-      title: 'Wed 02/16',
+      title: 'Wed 02/16', width: 100,
       renderCell: (index) => <EditableCell index={index} field='wed'/>,
-      width: 100,
-      renderFootCell: () => sum(rows.map(it => it.wed))
+      renderFootCell: () => sum(rows.map(it => it.wed)).toString(),
+      cellStyles: {body: {padding: 0}},
     },
     {
-      title: 'Thu 02/17',
+      title: 'Thu 02/17', width: 100,
       renderCell: (index) => <EditableCell index={index} field='thu'/>,
-      width: 100,
-      renderFootCell: () => sum(rows.map(it => it.thu))
+      renderFootCell: () => sum(rows.map(it => it.thu)).toString(),
+      cellStyles: {body: {padding: 0}},
     },
     {
-      title: 'Fri 02/18',
+      title: 'Fri 02/18', width: 100,
       renderCell: (index) => <EditableCell index={index} field='fri'/>,
-      width: 100,
-      renderFootCell: () => sum(rows.map(it => it.fri))
+      renderFootCell: () => sum(rows.map(it => it.fri)).toString(),
+      cellStyles: {body: {padding: 0}},
     },
     {
-      title: 'Sat 02/19',
+      title: 'Sat 02/19', width: 100,
       renderCell: (index) => <EditableCell index={index} field='sat'/>,
-      width: 100,
-      renderFootCell: () => sum(rows.map(it => it.sat))
+      renderFootCell: () => sum(rows.map(it => it.sat)).toString(),
+      cellStyles: {body: {padding: 0}},
     },
     {
-      title: 'Week Total', renderCell: (index) => rowTotal(index), width: 100
+      title: 'Week Total', width: 100,
+      renderCell: (rowIndex) => rowTotal(rowIndex),
+      cellStyles: {
+        base: {
+          fontWeight: 'bold'
+        }
+      },
     },
-    {title: '', renderCell: (index) => <DeleteIcon onClick={() => deleteRow(index)}/>, width: 100}
-  ]
+    {title: '', renderCell: (index) => <DeleteIcon onClick={() => deleteRow(index)}/>}
+  ], [rows]);
 
   return <div className={'MyTable'}>
     <EditableTable<Row> columns={bodyColumns} rows={rows}/>

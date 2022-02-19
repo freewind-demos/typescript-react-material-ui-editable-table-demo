@@ -9,38 +9,60 @@ import TableFooter from '@material-ui/core/TableFooter';
 import TableCell from '@material-ui/core/TableCell';
 import {TableColumn} from '../typings';
 import {makeStyles} from '@material-ui/core/styles';
+import {STYLE_CONSTS} from './STYLE_CONSTS';
 
 type Props<T> = {
   columns: TableColumn[]
   rows: T[]
 }
 
-const useStyles = makeStyles({
-  cell: {
-    border: '1px solid #DDDDDD',
-    padding: 0,
-    boxSizing: 'border-box',
+const useStyles = makeStyles(() => ({
+  row: {
+    height: STYLE_CONSTS.row.height,
   },
-})
+  headCell: {
+    border: '1px solid #DDDDDD',
+    padding: '2px 4px',
+    fontWeight: 'bold',
+    color: '#333333',
+    fontSize: 14,
+  },
+  bodyCell: {
+    border: '1px solid #DDDDDD',
+    padding: '2px 4px',
+    color: '#333333',
+    fontSize: 12,
+  },
+  footCell: {
+    border: '1px solid #DDDDDD',
+    padding: '2px 4px',
+    fontWeight: 'bold',
+    color: '#555555',
+    fontSize: 14,
+  }
+}))
 
 
 export function EditableTable<T>({columns, rows}: Props<T>) {
-  const classes = useStyles();
+  const styles = useStyles();
   return <TableContainer component={Paper}>
     <Table size={'small'} style={{width: 'auto'}}>
       <TableHead>
-        <TableRow>
-          {columns.map(column => <TableCell className={classes.cell} align={'center'}
-                                            style={{width: `${column.width}px`}}>{column.title}</TableCell>)}
+        <TableRow className={styles.row}>
+          {columns.map((column, index) => <TableCell key={index} className={styles.headCell}
+                                                     component={'th'}
+                                                     width={column.width}
+                                                     style={{...column.cellStyles?.base, ...column.cellStyles?.head}}>{column.title}</TableCell>)}
         </TableRow>
       </TableHead>
       <TableBody>
-        {rows.map((row, index) => (
-          <TableRow key={index}>
-            {columns.map(column => <TableCell className={classes.cell} style={{width: `${column.width}px`}}
-                                              component={column.isHead ? 'th' : 'td'}
-                                              align={column.align}
-                                              scope="row">{column.renderCell(index)}</TableCell>
+        {rows.map((row, rowIndex) => (
+          <TableRow key={rowIndex} className={styles.row}>
+            {columns.map((column, colIndex) => <TableCell key={colIndex} className={styles.bodyCell}
+                                                          style={{...column.cellStyles?.base, ...column.cellStyles?.body}}
+                                                          width={column.width}
+                                                          component={column.isHead ? 'th' : 'td'}
+                                                          scope="row">{column.renderCell(rowIndex)}</TableCell>
             )}
           </TableRow>
         ))}
@@ -48,9 +70,10 @@ export function EditableTable<T>({columns, rows}: Props<T>) {
       {
         columns.some(it => it.renderFootCell !== undefined) &&
         <TableFooter>
-          <TableRow>
-            {columns.map(column => <TableCell className={classes.cell} align={column.align}
-                                              style={{width: `${column.width}px`}}>{column.renderFootCell?.()}</TableCell>)}
+          <TableRow className={styles.row}>
+            {columns.map(column => <TableCell className={styles.footCell} component={'th'}
+                                              width={column.width}
+                                              style={{...column.cellStyles?.base, ...column.cellStyles?.foot}}>{column.renderFootCell?.()}</TableCell>)}
           </TableRow>
         </TableFooter>
       }
