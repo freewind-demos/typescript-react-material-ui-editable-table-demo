@@ -1,10 +1,10 @@
 import {ReactNode} from 'react';
 import {CSSProperties} from 'react';
 
-export type TableColumn = {
+export type TableColumn<T> = {
   title?: string,
-  renderCell: (index: number) => ReactNode,
-  renderFootCell?: () => ReactNode,
+  renderCell: (rows: T[], index: number) => ReactNode,
+  renderFootCell?: (rows: T[]) => ReactNode,
   isHead?: boolean,
   width?: number,
   cellStyles?: {

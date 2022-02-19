@@ -12,7 +12,7 @@ import {makeStyles} from '@material-ui/core/styles';
 import {STYLE_CONSTS} from './STYLE_CONSTS';
 
 type Props<T> = {
-  columns: TableColumn[]
+  columns: TableColumn<T>[]
   rows: T[]
 }
 
@@ -62,7 +62,7 @@ export function EditableTable<T>({columns, rows}: Props<T>) {
                                                           style={{...column.cellStyles?.base, ...column.cellStyles?.body}}
                                                           width={column.width}
                                                           component={column.isHead ? 'th' : 'td'}
-                                                          scope="row">{column.renderCell(rowIndex)}</TableCell>
+                                                          scope="row">{column.renderCell(rows, rowIndex)}</TableCell>
             )}
           </TableRow>
         ))}
@@ -71,9 +71,9 @@ export function EditableTable<T>({columns, rows}: Props<T>) {
         columns.some(it => it.renderFootCell !== undefined) &&
         <TableFooter>
           <TableRow className={styles.row}>
-            {columns.map(column => <TableCell className={styles.footCell} component={'th'}
-                                              width={column.width}
-                                              style={{...column.cellStyles?.base, ...column.cellStyles?.foot}}>{column.renderFootCell?.()}</TableCell>)}
+            {columns.map((column, index) => <TableCell key={index} className={styles.footCell} component={'th'}
+                                                       width={column.width}
+                                                       style={{...column.cellStyles?.base, ...column.cellStyles?.foot}}>{column.renderFootCell?.(rows)}</TableCell>)}
           </TableRow>
         </TableFooter>
       }
