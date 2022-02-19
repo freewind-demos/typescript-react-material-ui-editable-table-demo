@@ -34,8 +34,12 @@ type Props = {
   updateValue: (value: number) => void
 }
 
+function isValidNumber(text: string): boolean {
+  return !Number.isNaN(Number(text))
+}
+
 export const NumberInputCell: FC<Props> = React.memo(({value, updateValue}) => {
-  console.log("### > NumberInputCell", value)
+    console.log("### > NumberInputCell", value)
     const classes = useStyles()
     const cellRef = useRef<HTMLTableCellElement>()
 
@@ -50,18 +54,21 @@ export const NumberInputCell: FC<Props> = React.memo(({value, updateValue}) => {
       if (event.key === 'Enter' || event.key === 'Escape') {
         event.preventDefault();
         cellRef.current?.querySelector('input')?.blur();
-        updateValue(Number(text))
+        if (isValidNumber(text)) {
+          updateValue(Number(text));
+        }
       }
     }
 
     return <Input tabIndex={1}
-                  className={`${classes.textField} ${Number.isNaN(Number(text)) ? classes.invalidNumber : ''}`}
+                  className={`${classes.textField} ${isValidNumber(text) ? '' : classes.invalidNumber}`}
                   disableUnderline
                   ref={cellRef} onKeyDown={handleKeyDown}
                   onBlur={(event) => {
                     console.log('### blur')
-                    updateValue(Number(text))
-                    event.target.blur()
+                    if (isValidNumber(text)) {
+                      updateValue(Number(text));
+                    }
                   }}
                   onChange={(e) => setText(e.target.value)} value={text}/>
 

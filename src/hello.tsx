@@ -1,15 +1,16 @@
 import React from 'react'
 import {useState} from 'react';
 import {useMemo} from 'react';
+import {useCallback} from 'react';
 
 import './hello.pcss';
 import {TableColumn} from './typings';
 import {EditableTable} from './EditableTable/EditableTable';
-import {NumberInputCell} from './EditableTable/NumberInputCell';
-
-import DeleteIcon from '@material-ui/icons/Delete';
-import {sum} from './utils';
 import {Button} from '@material-ui/core';
+import {NumberInputCell} from './EditableTable/NumberInputCell';
+import {sum} from './utils';
+import DeleteIcon from '@material-ui/icons/Delete';
+import {useEffect} from 'react';
 
 type Row = {
   project: string,
@@ -22,25 +23,15 @@ type Row = {
   sat: number
 };
 
+function useEditableTable<T>(newRows: T[]) {
+  const [rows, setRows] = useState(newRows);
+  useEffect(() => {
+    setRows(newRows)
+  }, [JSON.stringify(newRows)])
 
-export default function MyTable() {
-  const [rowsX, setRowsX] = useState<Row[]>([
-    {project: 'project 1', sun: 0, mon: 6, tue: 4, wed: 2, thu: 4, fri: 3, sat: 0},
-    {project: 'project 2', sun: 0, mon: 2, tue: 5, wed: 2, thu: 5, fri: 1, sat: 0},
-    {project: 'project 3', sun: 0, mon: 4, tue: 2, wed: 2, thu: 4, fri: 3, sat: 0},
-    {project: 'project 4', sun: 0, mon: 2, tue: 8, wed: 2, thu: 4, fri: 3, sat: 0},
-  ]);
-
-
-  const bodyColumns: TableColumn<Row>[] = useMemo(() => {
-    function rowTotal(rows: Row[], index: number) {
-      const row = rows[index];
-      console.log("### row", {rows, index})
-      return row.sun + row.mon + row.tue + row.wed + row.thu + row.fri + row.sat;
-    }
-
+  const buildColumns = useCallback((callback: (helpers: { updateRow: (index: number, rowChanges: Partial<T>) => void, deleteRow: (index: number) => void }) => TableColumn<T>[]): TableColumn<T>[] => {
     function updateRow(index: number, rowChanges: Partial<Row>) {
-      setRowsX(rows => {
+      setRows(rows => {
         const newRows = [...rows];
         newRows.splice(index, 1, {...newRows[index], ...rowChanges})
         return newRows
@@ -48,11 +39,32 @@ export default function MyTable() {
     }
 
     function deleteRow(index: number) {
-      setRowsX(rows => {
+      setRows(rows => {
         const newRows = [...rows];
         newRows.splice(index, 1)
         return newRows;
       })
+    }
+
+    return callback({updateRow, deleteRow})
+  }, [])
+
+  return {rows, setRows, buildColumns}
+}
+
+export default function MyTable() {
+
+  const {rows, setRows, buildColumns} = useEditableTable([
+    {project: 'project 1', sun: 0, mon: 6, tue: 4, wed: 2, thu: 4, fri: 3, sat: 0},
+    {project: 'project 2', sun: 0, mon: 2, tue: 5, wed: 2, thu: 5, fri: 1, sat: 0},
+    {project: 'project 3', sun: 0, mon: 4, tue: 2, wed: 2, thu: 4, fri: 3, sat: 0},
+    {project: 'project 4', sun: 0, mon: 2, tue: 8, wed: 2, thu: 4, fri: 3, sat: 0},
+  ]);
+
+  const bodyColumns: TableColumn<Row>[] = useMemo(() => buildColumns(({updateRow, deleteRow}) => {
+    function rowTotal(rows: Row[], index: number) {
+      const row = rows[index];
+      return row.sun + row.mon + row.tue + row.wed + row.thu + row.fri + row.sat;
     }
 
     return [
@@ -130,11 +142,11 @@ export default function MyTable() {
       },
       {title: '', renderCell: (rows, index) => <DeleteIcon onClick={() => deleteRow(index)}/>}
     ]
-  }, [rowsX]);
+  }), [buildColumns]);
 
   return <div className={'MyTable'}>
-    <EditableTable<Row> columns={bodyColumns} rows={rowsX}/>
-    <Button variant={'contained'} onClick={() => setRowsX(rows => [...rows, {
+    <EditableTable<Row> columns={bodyColumns} rows={rows}/>
+    <Button variant={'contained'} onClick={() => setRows(rows => [...rows, {
       project: '',
       sun: 0,
       mon: 0,
