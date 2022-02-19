@@ -3,9 +3,9 @@
     "strict": true,
     "target": "es6",
     "module": "commonjs",
-    "sourceMap": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
     "jsx": "react"
   },
   "exclude": [
