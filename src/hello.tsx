@@ -9,6 +9,7 @@ import {NumberCell} from './EditableTable/NumberCell';
 
 import DeleteIcon from '@material-ui/icons/Delete';
 import {sum} from './utils';
+import {Button} from '@material-ui/core';
 
 type Row = {
   project: string,
@@ -111,5 +112,15 @@ export default function MyTable() {
 
   return <div className={'MyTable'}>
     <EditableTable<Row> columns={bodyColumns} rows={rows}/>
+    <Button variant={'contained'} onClick={() => setRows(rows => [...rows, {
+      project: '',
+      sun: 0,
+      mon: 0,
+      tue: 0,
+      wed: 0,
+      thu: 0,
+      fri: 0,
+      sat: 0
+    },])}>Add new row</Button>
   </div>
 }
